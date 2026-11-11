@@ -1,0 +1,15 @@
+{
+  "name": "macmove",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Student furniture and textbook marketplace with an AI condition scanner and a move helper for international students.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "check": "node --check api/_lib.js && node --check api/scan.js && node --check api/helper.js && node --check api/config.js && node --check public/app.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@supabase/supabase-js": "2.118.0"
+  }
+}

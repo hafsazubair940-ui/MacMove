@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><!-- sofa -->
+    <rect x="18" y="10" width="84" height="16" rx="6" fill="#E9B44C"/>
+    <rect x="12" y="20" width="96" height="18" rx="7" fill="#F3D79A"/>
+    <rect x="10" y="16" width="14" height="26" rx="6" fill="#E9B44C"/>
+    <rect x="96" y="16" width="14" height="26" rx="6" fill="#E9B44C"/>
+    <line x1="60" y1="21" x2="60" y2="36" stroke="#C99430" stroke-width="2"/>
+    <rect x="18" y="41" width="5" height="5" rx="1" fill="#C99430"/><rect x="97" y="41" width="5" height="5" rx="1" fill="#C99430"/>
+    <!-- arms -->
+    <path d="M44 74 L34 46" stroke="#F1C9A5" stroke-width="8" stroke-linecap="round"/>
+    <path d="M76 74 L86 46" stroke="#F1C9A5" stroke-width="8" stroke-linecap="round"/>
+    <!-- cape + body -->
+    <path d="M38 76 Q60 66 82 76 L90 114 Q60 120 30 114 Z" fill="#4A0022"/>
+    <path d="M44 74 Q60 68 76 74 L80 112 Q60 116 40 112 Z" fill="#9B1B52"/>
+    <path d="M52 86 L60 80 L68 86 L60 98 Z" fill="#E9B44C"/>
+    <!-- head + helmet -->
+    <circle cx="60" cy="64" r="12" fill="#F1C9A5"/>
+    <path d="M46 62 Q47 46 60 46 Q73 46 74 62 Z" fill="#B5B9C4"/>
+    <rect x="45" y="59" width="30" height="5" rx="2" fill="#8E93A1"/>
+    <path d="M60 46 Q58 36 66 32 Q64 40 70 44 Q64 44 60 46Z" fill="#B0103E"/>
+    <circle cx="55.5" cy="68" r="1.6" fill="#2A1219"/><circle cx="64.5" cy="68" r="1.6" fill="#2A1219"/>
+    <path d="M56 72 Q60 75 64 72" stroke="#2A1219" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>

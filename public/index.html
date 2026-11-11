@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MacMove</title>
+<meta name="description" content="Buy, sell and rent furniture and textbooks with other students near campus. AI condition scans, verified sellers, and a move-in / move-out helper for international students.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="boot" class="boot"><svg width="72" height="72"><use href="#logo"/></svg><span id="boot-msg">Loading MacMove…</span></div>
+
+
+<!-- Shared logo: an original cartoon warrior carrying a sofa overhead -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 120 120">
+    <!-- sofa -->
+    <rect x="18" y="10" width="84" height="16" rx="6" fill="#E9B44C"/>
+    <rect x="12" y="20" width="96" height="18" rx="7" fill="#F3D79A"/>
+    <rect x="10" y="16" width="14" height="26" rx="6" fill="#E9B44C"/>
+    <rect x="96" y="16" width="14" height="26" rx="6" fill="#E9B44C"/>
+    <line x1="60" y1="21" x2="60" y2="36" stroke="#C99430" stroke-width="2"/>
+    <rect x="18" y="41" width="5" height="5" rx="1" fill="#C99430"/><rect x="97" y="41" width="5" height="5" rx="1" fill="#C99430"/>
+    <!-- arms -->
+    <path d="M44 74 L34 46" stroke="#F1C9A5" stroke-width="8" stroke-linecap="round"/>
+    <path d="M76 74 L86 46" stroke="#F1C9A5" stroke-width="8" stroke-linecap="round"/>
+    <!-- cape + body -->
+    <path d="M38 76 Q60 66 82 76 L90 114 Q60 120 30 114 Z" fill="#4A0022"/>
+    <path d="M44 74 Q60 68 76 74 L80 112 Q60 116 40 112 Z" fill="#9B1B52"/>
+    <path d="M52 86 L60 80 L68 86 L60 98 Z" fill="#E9B44C"/>
+    <!-- head + helmet -->
+    <circle cx="60" cy="64" r="12" fill="#F1C9A5"/>
+    <path d="M46 62 Q47 46 60 46 Q73 46 74 62 Z" fill="#B5B9C4"/>
+    <rect x="45" y="59" width="30" height="5" rx="2" fill="#8E93A1"/>
+    <path d="M60 46 Q58 36 66 32 Q64 40 70 44 Q64 44 60 46Z" fill="#B0103E"/>
+    <circle cx="55.5" cy="68" r="1.6" fill="#2A1219"/><circle cx="64.5" cy="68" r="1.6" fill="#2A1219"/>
+    <path d="M56 72 Q60 75 64 72" stroke="#2A1219" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<!-- ================= LOGIN ================= -->
+<section class="view" id="v-login" hidden>
+  <div class="poster gut">
+    <div class="brand"><svg width="40" height="40"><use href="#logo"/></svg>MacMove</div>
+    <h1>Furniture that moves <em>with</em> the students.</h1>
+    <svg class="mascot" viewBox="0 0 120 120" role="img" aria-label="MacMove mascot carrying a sofa"><use href="#logo"/></svg>
+    <ul>
+      <li>Scan your furniture, get a verified-seller badge</li>
+      <li>Sell outright or rent by the month</li>
+      <li>Message buyers and sellers around campus</li>
+    </ul>
+  </div>
+  <div class="login-form gut">
+    <form id="f-login" novalidate>
+      <div class="eyebrow">Step 1 · Your details</div>
+      <h2>Sign in to MacMove</h2>
+      <p style="color:var(--muted)">We'll email you a sign-in link. Your student details let buyers know they're dealing with a real student.</p>
+      <div class="field"><label for="in-name">Full name</label><input class="input" id="in-name" autocomplete="name" placeholder="e.g. Hafsa Zubair" required></div>
+      <div class="field"><label for="in-mac">Mac ID</label><input class="input" id="in-mac" autocomplete="username" placeholder="e.g. zubairh" required><span class="hint">The username before @mcmaster.ca</span></div>
+      <div class="field"><label for="in-email">Email</label><input class="input" id="in-email" type="email" autocomplete="email" placeholder="zubairh@mcmaster.ca" required></div>
+      <p id="login-err" class="notice" hidden></p>
+      <button class="btn" type="submit" id="btn-login">Email me a sign-in link</button>
+    </form>
+    <form id="f-code" novalidate hidden>
+      <div class="eyebrow">Step 1 · Check your email</div>
+      <h2>Check your inbox</h2>
+      <p style="color:var(--muted)">We sent a sign-in link to <b id="sent-to"></b>. Open it on this device to continue. It can take a minute to arrive; check your spam folder too.</p>
+      <div class="field"><label for="in-code">Got a 6-digit code instead?</label><input class="input" id="in-code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" maxlength="10"></div>
+      <p id="code-err" class="notice" hidden></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="submit" id="btn-code">Sign in with code</button><button class="btn ghost" type="button" id="btn-restart">Use a different email</button></div>
+    </form>
+  </div>
+</section>
+
+<!-- ================= APP SHELL ================= -->
+<div id="app" hidden>
+  <header class="appbar gut">
+    <div class="wrap">
+      <a class="brand" href="#market"><svg><use href="#logo"/></svg>MacMove</a>
+      <nav class="nav" aria-label="Main">
+        <a href="#market" data-nav="market">Marketplace</a>
+        <a href="#textbooks" data-nav="textbooks">Textbooks</a>
+        <a href="#move" data-nav="move">Move helper</a>
+        <a href="#start" data-nav="start">Buy or sell</a>
+        <a href="#messages" data-nav="messages">Messages<span class="dot" id="msg-dot" hidden></span></a>
+        <a href="#agent-desk" data-nav="agent-desk" id="nav-agent" hidden>Agent desk</a>
+      </nav>
+      <div class="me"><span class="avatar" id="me-av">?</span><span id="me-name"></span><button class="btn ghost sm" id="btn-logout" style="color:var(--on-maroon);border-color:rgba(255,255,255,.3)">Sign out</button></div>
+    </div>
+  </header>
+
+  <main class="gut"><div class="wrap">
+    <p class="notice" id="offline-note" hidden style="margin-bottom:16px"></p>
+
+    <!-- ===== START / VERIFY ===== -->
+    <section class="view" id="v-start" hidden>
+      <div class="start-head">
+        <div class="eyebrow">Step 2 · Verification</div>
+        <h1 id="start-hi">Welcome.</h1>
+        <div class="checks" id="checks"></div>
+        <p style="color:var(--muted)">What are you here to do today?</p>
+      </div>
+      <div class="choice-grid">
+        <button class="choice" id="go-buy">
+          <span class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6"/></svg></span>
+          <h2>I want to buy</h2>
+          <p>Browse sofas, desks, beds and more from students near campus. Verified items are condition-checked.</p>
+          <span class="go">Go to the marketplace →</span>
+        </button>
+        <button class="choice sell" id="go-sell">
+          <span class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 14v-3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3M6 14h12v2H6z"/></svg></span>
+          <h2>I want to sell</h2>
+          <p>Scan your furniture with your camera. Pass the condition check and you list as a verified seller.</p>
+          <span class="go">Start the scan →</span>
+        </button>
+      </div>
+      <div class="more-grid">
+        <a class="more" href="#textbooks"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/></svg></span><div><b>Textbooks</b><span>Buy, sell or rent course books by course code.</span></div></a>
+        <a class="more" href="#move"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><div><b>International student? Move helper</b><span>Checklists for moving in and out, plus a helper to ask.</span></div></a>
+      </div>
+    </section>
+
+    <!-- ===== SCAN ===== -->
+    <section class="view" id="v-scan" hidden>
+      <div class="steps"><span class="done">1 Details</span><span class="done">2 Sell</span><span class="on">3 Scan</span><span>4 List it</span></div>
+      <div class="scan-grid">
+        <div>
+          <div class="viewfinder" id="vf">
+            <div class="empty" id="vf-empty">
+              <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              <span>Fit the whole piece inside the frame,<br>in good light.</span>
+            </div>
+            <img id="vf-img" alt="Photo of your furniture" hidden>
+            <span class="vf-corner tl"></span><span class="vf-corner tr"></span><span class="vf-corner bl"></span><span class="vf-corner br"></span>
+            <div class="scanline" id="scanline" hidden></div>
+            <span class="vf-tag" id="vf-tag">CONDITION SCANNER · READY</span>
+          </div>
+          <div class="scan-actions">
+            <label class="btn" for="cam-in">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+              Open camera</label>
+            <input type="file" id="cam-in" accept="image/*" capture="environment" hidden>
+            <label class="btn ghost" for="file-in">Upload a photo</label>
+            <input type="file" id="file-in" accept="image/*" hidden>
+            <button class="btn gold" id="btn-scan" disabled>Scan condition</button>
+          </div>
+        </div>
+        <div class="panel" id="scan-panel">
+          <div class="eyebrow">How the scan works</div>
+          <h2>Get your verified-seller badge</h2>
+          <ol class="tips">
+            <li>Take a clear photo of the whole item.</li>
+            <li>The scanner checks for tears, stains, scratches and broken parts.</li>
+            <li>A score of 7/10 or higher makes you a verified seller for this item.</li>
+            <li>Not sure? Tap <b>Ask an agent</b> and a real person will review it.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DETAILS ===== -->
+    <section class="view" id="v-details" hidden>
+      <div class="steps"><span class="done">1 Details</span><span class="done">2 Sell</span><span class="done">3 Scan</span><span class="on">4 List it</span></div>
+      <div class="details-grid">
+        <form class="panel" id="f-details" novalidate>
+          <div class="eyebrow">Tell buyers about it</div>
+          <h2>List your furniture</h2>
+          <div class="form-grid">
+            <div class="field full"><label for="d-title">What is it?</label><input class="input" id="d-title" placeholder="e.g. Grey 3-seat fabric sofa" required></div>
+            <div class="field"><label for="d-cat">Category</label>
+              <select class="input" id="d-cat"><option>Sofa</option><option>Chair</option><option>Desk</option><option>Bed</option><option>Table</option><option>Shelf</option><option>Dresser</option><option>Lamp</option><option>Other</option></select></div>
+            <div class="field"><label for="d-age">How old is it?</label>
+              <select class="input" id="d-age"><option>Under 1 year</option><option>1–2 years</option><option>2–4 years</option><option>4–7 years</option><option>7+ years</option></select></div>
+            <div class="field full"><label>Do you want to rent or sell?</label>
+              <div class="seg" role="radiogroup">
+                <input type="radio" name="d-mode" id="m-sell" value="sell" checked><label for="m-sell">Sell fully</label>
+                <input type="radio" name="d-mode" id="m-rent" value="rent"><label for="m-rent">Rent out</label>
+                <input type="radio" name="d-mode" id="m-both" value="both"><label for="m-both">Either</label>
+              </div></div>
+            <div class="field" id="wrap-sale"><label for="d-price">Sale price (CAD)</label><div class="money"><span>$</span><input class="input" id="d-price" type="number" min="0" step="5" inputmode="numeric" placeholder="120"></div></div>
+            <div class="field" id="wrap-rent" hidden><label for="d-rent">Rent per month (CAD)</label><div class="money"><span>$</span><input class="input" id="d-rent" type="number" min="0" step="5" inputmode="numeric" placeholder="25"></div></div>
+            <div class="field"><label for="d-area">Pickup area</label>
+              <select class="input" id="d-area"><option>Westdale</option><option>Ainslie Wood</option><option>On-campus residence</option><option>Downtown Hamilton</option><option>Dundas</option><option>Other</option></select></div>
+            <div class="field full"><label for="d-desc">Description</label><textarea class="input" id="d-desc" placeholder="Size, colour, any marks, why you're selling, when it's available…"></textarea></div>
+          </div>
+          <p id="details-err" class="notice" hidden></p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="submit" id="btn-upload">Upload listing</button><a class="btn ghost" href="#scan">Back to scan</a></div>
+        </form>
+        <div class="sticky-preview">
+          <div class="eyebrow">Preview</div>
+          <div id="preview"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MARKET ===== -->
+    <section class="view" id="v-market" hidden>
+      <div class="market-head">
+        <div style="display:grid;gap:6px"><div class="eyebrow">Marketplace</div><h1>Furniture near campus</h1></div>
+        <a class="btn" href="#scan">+ Sell an item</a>
+      </div>
+      <div class="toolbar">
+        <input class="input" id="q" type="search" placeholder="Search sofas, desks…">
+        <div class="filters" id="filters">
+          <button data-f="all" class="on">All</button><button data-f="verified">Verified only</button><button data-f="sale">For sale</button><button data-f="rent">For rent</button><button data-f="mine">My listings</button>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- ===== MESSAGES ===== -->
+    <section class="view" id="v-messages" hidden>
+      <div style="display:grid;gap:6px;margin-bottom:16px"><div class="eyebrow">Inbox</div><h1 style="font-size:32px">Messages</h1></div>
+      <div class="msg-shell">
+        <div class="thread-list" id="threads"></div>
+        <div class="chat" id="chat"></div>
+      </div>
+    </section>
+
+    <!-- ===== TEXTBOOKS ===== -->
+    <section class="view" id="v-textbooks" hidden>
+      <div class="market-head">
+        <div style="display:grid;gap:6px"><div class="eyebrow">Textbooks</div><h1>Course books, bought, sold and rented</h1><p style="color:var(--muted);max-width:60ch">Search by course code. Renting? Use the book for the term and hand it back after your final exam.</p></div>
+        <button class="btn" id="tb-new">+ Sell a textbook</button>
+      </div>
+      <div class="toolbar">
+        <input class="input" id="tb-q" type="search" placeholder="Course code or title, e.g. MATH 1ZA3">
+        <div class="filters" id="tb-filters"><button data-f="all" class="on">All</button><button data-f="sale">For sale</button><button data-f="rent">Rent for the term</button><button data-f="mine">My books</button></div>
+      </div>
+      <div class="grid" id="tb-grid"></div>
+    </section>
+
+    <!-- ===== MOVE HELPER ===== -->
+    <section class="view" id="v-move" hidden>
+      <div class="start-head">
+        <div class="eyebrow">International students</div>
+        <h1>Move-in &amp; move-out helper</h1>
+        <p style="color:var(--muted);max-width:62ch">Step-by-step checklists for arriving in Hamilton and for leaving at the end of your program. Tick things off as you go. Your progress is saved to your account.</p>
+      </div>
+      <div class="two-col">
+        <div style="display:grid;gap:16px;min-width:0">
+          <div class="tabs" role="tablist" id="mv-tabs"><button data-mt="in" class="on" role="tab">Moving in</button><button data-mt="out" role="tab">Moving out</button></div>
+          <div class="panel" style="gap:8px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b id="mv-count">0 of 0 done</b><span id="mv-saved" style="color:var(--muted);font-size:12.5px"></span></div><div class="meter"><i id="mv-bar" style="width:0;background:var(--ok)"></i></div></div>
+          <div id="mv-list" style="display:grid;gap:22px"></div>
+          <p style="color:var(--muted);font-size:12.5px">General guidance only. Rules for study permits, work, health insurance and taxes change. Confirm details with your university's international student office or canada.ca.</p>
+        </div>
+        <aside class="panel helper" id="helper">
+          <div class="eyebrow">Ask the helper</div>
+          <h2>Questions about moving?</h2>
+          <div class="chat-log" id="hp-log"><div class="bubble them">Hi! I can help with arriving in Hamilton or moving out: SIN, bank accounts, phone plans, leases, winter, furniture and more. What do you want to know?</div></div>
+          <div class="sugg" id="hp-sugg">
+            <button>What should I do in my first week?</button>
+            <button>How do I give notice to my landlord?</button>
+            <button>Where can I get cheap winter clothes?</button>
+            <button>What should I do with my furniture when I leave?</button>
+          </div>
+          <form class="chat-input" id="hp-form" style="padding:0;border:0"><input class="input" id="hp-text" placeholder="Ask anything about moving…" autocomplete="off"><button class="btn" id="hp-send">Ask</button></form>
+          <p id="hp-note" style="font-size:12.5px;color:var(--muted)">Answers come from AI and can be wrong. Prefer a person? <button class="btn ghost sm" id="hp-agent" type="button">Talk to an agent</button></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== AGENT DESK ===== -->
+    <section class="view" id="v-agent-desk" hidden>
+      <div style="display:grid;gap:6px;margin-bottom:16px"><div class="eyebrow">Staff only</div><h1 style="font-size:32px">Agent desk</h1><p style="color:var(--muted)">Sellers who tap “Ask an agent” show up here. Review their photo, chat, and verify the item by hand.</p></div>
+      <div class="msg-shell">
+        <div class="thread-list" id="a-threads"></div>
+        <div class="chat" id="a-chat"></div>
+      </div>
+    </section>
+  </div></main>
+
+  <button class="btn gold agent-fab" id="fab-agent" hidden>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="14" width="5" height="6" rx="2"/><rect x="17" y="14" width="5" height="6" rx="2"/></svg>
+    Ask an agent</button>
+</div>
+
+<!-- Agent dialog -->
+<dialog id="dlg-agent">
+  <div class="dlg">
+    <div class="dlg-head"><div style="display:grid;gap:4px"><div class="eyebrow">Live help</div><h2 style="font-size:22px">Ask an agent</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <p style="color:var(--muted);font-size:14px" id="agent-intro">A MacMove agent (a real person) will look at your photo and scan result, answer questions, and can verify your item by hand.</p>
+    <div id="agent-chat" class="chat" style="border:1.5px solid var(--line);border-radius:12px;height:300px"></div>
+  </div>
+</dialog>
+
+<!-- Listing dialog -->
+<dialog id="dlg-tb">
+  <form class="dlg" id="f-tb" novalidate>
+    <div class="dlg-head"><div style="display:grid;gap:4px"><div class="eyebrow">Textbooks</div><h2 style="font-size:22px">Sell or rent a textbook</h2></div><button class="x" type="button" data-close aria-label="Close">×</button></div>
+    <div class="form-grid">
+      <div class="field"><label for="tb-code">Course code</label><input class="input" id="tb-code" placeholder="e.g. MATH 1ZA3"></div>
+      <div class="field"><label for="tb-ed">Edition</label><input class="input" id="tb-ed" placeholder="e.g. 9th edition"></div>
+      <div class="field full"><label for="tb-title">Book title</label><input class="input" id="tb-title" placeholder="e.g. Calculus: Early Transcendentals"></div>
+      <div class="field"><label for="tb-cond">Condition</label><select class="input" id="tb-cond"><option>Like new</option><option>Good</option><option>Some highlighting</option><option>Lots of notes</option><option>Worn but usable</option></select></div>
+      <div class="field"><label for="tb-area">Pickup area</label><select class="input" id="tb-area"><option>On campus</option><option>Westdale</option><option>Ainslie Wood</option><option>Downtown Hamilton</option><option>Other</option></select></div>
+      <div class="field full"><label>Sell or rent?</label><div class="seg">
+        <input type="radio" name="tb-mode" id="tbm-sell" value="sell" checked><label for="tbm-sell">Sell</label>
+        <input type="radio" name="tb-mode" id="tbm-rent" value="rent"><label for="tbm-rent">Rent for term</label>
+        <input type="radio" name="tb-mode" id="tbm-both" value="both"><label for="tbm-both">Either</label></div></div>
+      <div class="field" id="tbw-sale"><label for="tb-price">Sale price (CAD)</label><div class="money"><span>$</span><input class="input" id="tb-price" type="number" min="0" step="1" inputmode="numeric" placeholder="60"></div></div>
+      <div class="field" id="tbw-rent" hidden><label for="tb-rent">Rent per term (CAD)</label><div class="money"><span>$</span><input class="input" id="tb-rent" type="number" min="0" step="1" inputmode="numeric" placeholder="25"></div></div>
+      <div class="field full"><label for="tb-photo">Cover photo (optional)</label><input class="input" id="tb-photo" type="file" accept="image/*"></div>
+    </div>
+    <p id="tb-err" class="notice" hidden></p>
+    <button class="btn" id="tb-submit">Post textbook</button>
+  </form>
+</dialog>
+
+<dialog id="dlg-listing"><div class="dlg" id="listing-body"></div></dialog>
+
+<div class="toast" id="toast" hidden></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
